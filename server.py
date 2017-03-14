@@ -198,7 +198,7 @@ def getNews(entities):
     # default topic
     if newstopic is None:
         newstopic = "world"
-
+    
     response = requests.get(url='https://api.datamarket.azure.com/Bing/Search/News?$format=json&Query=%27' + newstopic + "%27", \
      auth=(bing_api_key, bing_api_key))
 
@@ -206,7 +206,6 @@ def getNews(entities):
     news = news_dict.get('d').get('results')
 
     message = ""
-
     if len(news) >= 5:
         message = "Here are the top 5 stories about " + newstopic + ":\n"
         for x in range(0, 5):
@@ -215,13 +214,12 @@ def getNews(entities):
         message = "Here are the top news stories about " + newstopic + ":\n"
         for item in news:
             message += "- " + item.get('Title') + "\n"
-
+    
     resp.message(message)
 
     # For TESTing -- START
     send_sms_to_admin(message)
     # For TESTing -- END
-
     return resp
 
 @app.route("/imdb", methods=['POST'])
@@ -368,7 +366,7 @@ def sms():
     elif intent == "translate":
         msg = translate(entities)
     elif intent == "news":
-        msg = define(entities)
+        msg = getNews(entities)
     elif intent == "imdb":
         msg = imdb(dict_response)
     elif intent == "atm":
