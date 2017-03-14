@@ -22,14 +22,14 @@ from twilio.rest import TwilioRestClient
 app = Flask(__name__)
 
 # For TESTing -- START
-def send_sms_to_jitesh(message):
-    # Credentials owner: jiteshjha96@gmail.com
+def send_sms_to_admin(message):
+    # Credentials owner: avikantsainidbz@gmail.com
     # Find these values at https://twilio.com/user/account
-    account_sid = "ACe9748f2bce3601801167fa0791836c3e"
-    auth_token = "cef3bac7ba6d045c7e6cf4b6c21581eb"
+    account_sid = "SK0c26199f7a8e5e61efa708fd65e2aafe"
+    auth_token = "cef3bac7ba6d045c7e6cf4b6c21581eb" ## Have to find out where is this.
     client = TwilioRestClient(account_sid, auth_token)
 
-    message = client.messages.create(to="+918095718111", from_="+18779545971",
+    message = client.messages.create(to="+918095718111", from_="+13609001701",
                                          body=message)
 # For TESTing -- END
 
@@ -46,7 +46,7 @@ def no_intent():
     resp.message(message)
 
     # For TESTing -- START
-    send_sms_to_jitesh(message)
+    send_sms_to_admin(message)
     # For TESTing -- END
 
     return resp
@@ -83,7 +83,7 @@ def sos(dict_response):
     resp.message(message)
 
     # For TESTing -- START
-    send_sms_to_jitesh(message)
+    send_sms_to_admin(message)
     # For TESTing -- END
 
     return resp
@@ -106,7 +106,7 @@ def weather(entities):
     resp.message(message)
 
     # For TESTing -- START
-    send_sms_to_jitesh(message)
+    send_sms_to_admin(message)
     # For TESTing -- END
 
     return resp
@@ -139,7 +139,7 @@ def navigate(entities):
     resp.message(message)
 
     # For TESTing -- START
-    send_sms_to_jitesh(message)
+    send_sms_to_admin(message)
     # For TESTing -- END
 
     return resp
@@ -172,7 +172,7 @@ def translate(entities):
     resp.message(message)
 
     # For TESTing -- START
-    send_sms_to_jitesh(message)
+    send_sms_to_admin(message)
     # For TESTing -- END
 
     return resp
@@ -206,7 +206,7 @@ def getNews(entities):
     resp.message(message)
 
     # For TESTing -- START
-    send_sms_to_jitesh(message)
+    send_sms_to_admin(message)
     # For TESTing -- END
 
     return resp
@@ -241,7 +241,7 @@ def imdb(dict_response):
     resp.message(message)
 
     # For TESTing -- START
-    send_sms_to_jitesh(message)
+    send_sms_to_admin(message)
     # For TESTing -- END
 
     return resp
@@ -266,7 +266,7 @@ def stocks(dict_response):
     resp.message(message)
 
     # For TESTing -- START
-    send_sms_to_jitesh(message)
+    send_sms_to_admin(message)
 
 @app.route("/atm", methods=['POST'])
 def atm(dict_response):
@@ -294,7 +294,7 @@ def atm(dict_response):
     resp.message(message)
 
     # For TESTing -- START
-    send_sms_to_jitesh(message)
+    send_sms_to_admin(message)
     # For TESTing -- END
 
     return resp
@@ -322,7 +322,7 @@ def define(dict_response):
     resp.message(message)
 
     # For TESTing -- START
-    send_sms_to_jitesh(message)
+    send_sms_to_admin(message)
     # For TESTing -- END
 
     return resp
@@ -330,12 +330,6 @@ def define(dict_response):
 @app.route("/sms", methods=['GET', 'POST'])
 def sms():
     message_body = request.values.get('Body', None)
-
-    # Remove annoying text prefix announcing trial version
-    prefix = "Sent from your Twilio trial account - "
-
-    if prefix in message_body:
-        message_body = message_body[len(prefix):]
 
     response = requests.get(url='https://api.wit.ai/message?v=20161022&q='+message_body,headers={'Authorization': 'Bearer TUDKLORVVMITDT4FCJFMAARQAWB2NLJ2'})
     dict_response = json.loads(response.text)

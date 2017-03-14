@@ -4,7 +4,7 @@ Code.Fun.Do 2016 Hackathon project by team ./ [dot slash]
 
 A Q&A service through SMS.
 
-Number: +1 206-745-6187
+Number: +1 360-900-1701
 
 ## Features
 * Call for help using the SOS module
@@ -36,18 +36,12 @@ And the best part? No need to have Internet, or even a smartphone.
 
 ## Developed by
 
+[Avikant Saini](https://github.com/avikantz)
+
 [Yash Kumar Lal](https://github.com/ykl7)
 
 [Jitesh Kumar Jha](https://github.com/jiteshjha)
 
-[Avikant Saini](https://github.com/avikantz)
-
-
-## Beta Testing
-
-Since a trial Twilio account (valid for 30 days and expires on Feb 8, 2017) has been used, the number (user) used to send and receive messages and information needs to be verified on Twilio through the account that has been used in setup of the service. Please contact any of the 3 of use for the same.
-
-The information being received is also dependent on the APIs being used, which have been listed above. Sometimes, the response returned is slow, so patience is advised, or the request might also return invalid messages.
 
 ### Templates
 
