@@ -64,3 +64,7 @@ The languages currently supported by our Translate feature are:
 * French
 * Spanish
 * Chinese
+
+### Running Locally
+
+It's possible; Send a `GET` request to `localhost:5000/sms` with the query string in a parameter "`Body`"

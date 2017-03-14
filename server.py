@@ -31,12 +31,13 @@ def home_page():
 def send_sms_to_admin(message):
     # Credentials owner: avikantsainidbz@gmail.com
     # Find these values at https://twilio.com/user/account
-    account_sid = "SK0c26199f7a8e5e61efa708fd65e2aafe"
-    auth_token = "cef3bac7ba6d045c7e6cf4b6c21581eb" ## Have to find out where is this.
+    account_sid = "ACab3e465e67051257d227bf49a3c9a58e"
+    auth_token = "ca96731e12b0442bcf5b1c8f7dedc58d" ## Have to find out where is this.
     client = TwilioRestClient(account_sid, auth_token)
 
-    message = client.messages.create(to="+918095718111", from_="+13609001701",
-                                         body=message)
+    message = client.messages.create(to="+918095718111", from_="+13609001701", body=message)
+    # message = client.messages.create(to="+918095138333", from_="+13609001701", body=message)
+
 # For TESTing -- END
 
 noIntent = [
@@ -52,7 +53,7 @@ def no_intent():
     resp.message(message)
 
     # For TESTing -- START
-    send_sms_to_admin(message)
+    # send_sms_to_admin(message)
     # For TESTing -- END
 
     return resp
@@ -106,8 +107,14 @@ def weather(entities):
     weather_description = dict_response['weather'][0]['description']
 
     message = "The weather in " + location + ": " + weather_description + ". "
-    message += "The temperature is: " + str(temperature_in_celsius) + " C."
-    message += "The humidity is: " + str(humidity) + " %."
+    message += "Average: " + str(temperature_in_celsius) + " C, "
+    message += "Humidity: " + str(humidity) + "%"
+
+    try:
+        wind_speed = dict_response['wind']['speed']
+        message += ", Wind: " + str(wind_speed) + " km/h"
+    except:
+        message += "."
 
     resp.message(message)
 
