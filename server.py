@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from flask import Flask, request, redirect
+from flask import Flask, request, redirect, render_template
 import twilio.twiml
 import random
 import requests
@@ -20,6 +20,12 @@ from twilio.rest import TwilioRestClient
 # For TESTing -- END
 
 app = Flask(__name__)
+
+# Main route
+
+@app.route("/", methods=['GET'])
+def home_page():
+    return render_template('index.html')
 
 # For TESTing -- START
 def send_sms_to_admin(message):
