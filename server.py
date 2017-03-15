@@ -1,6 +1,9 @@
 #!/usr/bin/python
 
 from flask import Flask, request, redirect, render_template
+from flask_wtf import Form
+from wtforms import StringField, BooleanField
+from wtforms.validators import DataRequired
 import twilio.twiml
 import random
 import requests
@@ -23,39 +26,55 @@ twilio_auth_token = "ca96731e12b0442bcf5b1c8f7dedc58d"
 admin_phone = "+918095138333"
 # admin_phone = "+918095718111"
 
+test_mode = False
+
 # For TESTing -- START
 from twilio.rest import TwilioRestClient
 # For TESTing -- END
 
 app = Flask(__name__)
+app.config.from_object('config')
 
 # Main route
 
-@app.route("/", methods=['GET'])
+class SMSForm(Form):
+    phone_number = StringField('phone_number', validators=[DataRequired()])
+    query_string = StringField('query_string', validators=[DataRequired()])
+
+@app.route("/", methods=['GET', 'POST'])
 def home_page():
-    return render_template('index.html')
+    form = SMSForm()
+    if form.validate_on_submit():
+        query = str(form.query_string.data)
+        number = str(form.phone_number.data)
+        print("Sending sms to " + number + " with query \'" + query + "\'.")
+        message = process_query(query)
+        send_sms_to_number(message, number)
+        return redirect('/')
+    return render_template('index.html', form=form)
+
+
+# Test routes
 
 def send_sms_to_number(message, number):
     client = TwilioRestClient(twilio_account_sid, twilio_auth_token)
     message = client.messages.create(to=number, from_="+13609001701", body=message)
 
-# For TESTing -- START
 def send_sms_to_admin(message):
     send_sms_to_number(message, admin_phone)
 
 # Test routing to specific phone number
-
 @app.route("/test_phone/<phone>", methods=['POST'])
 def test_method(phone):
     try:
         query = request.form.get('query')
         msg = process_query(query)
         send_sms_to_number(str(msg), phone)
-        return "Message " + str(msg) + " sent to " + str(phone) + "."
+        return "Message \'\'\'" + str(msg) + "\'\'\' sent to " + str(phone) + ".\n"
     except:
-        return "Failed to send message"
+        return "Failed to send message. :(\n"
     
-# For TESTing -- END
+# Main routes
 
 noIntent = [
     "I'm having trouble understanding you, could you rephrase your question?",
@@ -65,20 +84,11 @@ noIntent = [
 
 @app.route("/no_intent", methods=['POST'])
 def no_intent():
-    # resp = twilio.twiml.Response()
     message = random.choice(noIntent)
-    # resp.message(message)
-
-    # For TESTing -- START
-    # send_sms_to_admin(message)
-    # For TESTing -- END
-
     return message
-    # return resp
 
 @app.route("/sos", methods=["POST"])
 def sos(dict_response):
-    # resp = twilio.twiml.Response()
     query_text = dict_response["_text"].lower()
 
     # remove sos prefix and clean location string
@@ -105,18 +115,10 @@ def sos(dict_response):
         else:
             break
 
-    # resp.message(message)
-
-    # For TESTing -- START
-    send_sms_to_admin(message)
-    # For TESTing -- END
-
     return message
-    # return resp
 
 @app.route("/weather", methods=['POST'])
 def weather(entities):
-    # resp = twilio.twiml.Response()
     location = entities['location'][0]['value'].lower()
     response = requests.get(url="http://api.openweathermap.org/data/2.5/weather?q=" + location + "&APPID=500d01a6ece6498b1cbf94ed23519119")
     dict_response = json.loads(response.text)
@@ -135,18 +137,10 @@ def weather(entities):
     except:
         message += "."
 
-    # resp.message(message)
-
-    # For TESTing -- START
-    send_sms_to_admin(message)
-    # For TESTing -- END
-
     return message
-    # return resp
 
 @app.route("/navigate", methods=['POST'])
 def navigate(entities):
-    # resp = twilio.twiml.Response()
     destination = entities['to'][0]['value']
     origin = entities['from'][0]['value'].lower()
 
@@ -169,24 +163,18 @@ def navigate(entities):
         message += "\n"
         count +=1
 
-    # resp.message(message)
-
-    # For TESTing -- START
-    send_sms_to_admin(message)
-    # For TESTing -- END
+    # Precaution
+    if (len(message) > 1536):
+        message = message[:1533] + "...";
 
     return message
-    # return resp
 
 @app.route("/translate", methods=['POST'])
 def translate(entities):
-    # resp = twilio.twiml.Response()
-
     message = ""
 
     text_for_translation = entities['phrase_to_translate'][0]['value']
     language =  entities['language'][0]['value'].lower()
-
     if language == "spanish":
         language = "es"
     elif language == "french":
@@ -203,18 +191,10 @@ def translate(entities):
         translator = Translator('SMSAssistant', 'fhV+AdYFiK0QfQ4PFys+oQ/T0xiBBVQa32kxxbP55Ks=')
         message += translator.translate(text_for_translation, language)
 
-    # resp.message(message)
-
-    # For TESTing -- START
-    send_sms_to_admin(message)
-    # For TESTing -- END
-
     return message
-    # return resp
 
 @app.route("/news", methods=['POST'])
 def getNews(entities):
-    # resp = twilio.twiml.Response()
     newstopic = entities['news_topic'][0]['value'].lower()
 
     # default topic
@@ -237,17 +217,13 @@ def getNews(entities):
         for item in news:
             message += "- " + item.get('Title') + "\n"
     
-    # resp.message(message)
+    if test_mode:
+        send_sms_to_admin(message)
 
-    # For TESTing -- START
-    send_sms_to_admin(message)
-    # For TESTing -- END
     return message
-    # return resp
 
 @app.route("/imdb", methods=['POST'])
 def imdb(dict_response):
-    # resp = twilio.twiml.Response()
     query_text = dict_response['_text'].lower()
     if query_text.find("imdb ") != -1:
         query_text = query_text[5:]
@@ -272,17 +248,10 @@ def imdb(dict_response):
     if data["Plot"] != "N/A":
         message += "Plot: " + data["Plot"]
 
-    # resp.message(message)
-
-    # For TESTing -- START
-    send_sms_to_admin(message)
-    # For TESTing -- END
     return message
-    # return resp
 
 @app.route("/stocks", methods=['POST'])
 def stocks(dict_response):
-    # resp = twilio.twiml.Response()
     query_text = dict_response['_text'].lower()
     if query_text.find("stocks ") != -1:
         query_text = query_text[7:]
@@ -297,16 +266,10 @@ def stocks(dict_response):
     message += "Short ratio: " + y.get_short_ratio() + "\n"
     message += "Previous close: " + y.get_prev_close() + "\n"
 
-    # resp.message(message)
-
-    # For TESTing -- START
-    send_sms_to_admin(message)
-
     return message
 
 @app.route("/atm", methods=['POST'])
 def atm(dict_response):
-    # resp = twilio.twiml.Response()
     query_text = dict_response['_text'].lower()
     if query_text.find("atm near ") != -1:
         query_text = query_text[9:]
@@ -327,18 +290,10 @@ def atm(dict_response):
         else:
             break
 
-    # resp.message(message)
-
-    # For TESTing -- START
-    send_sms_to_admin(message)
-    # For TESTing -- END
-
     return message
-    # return resp
 
 @app.route("/define", methods=['POST'])
 def define(dict_response):
-    # resp = twilio.twiml.Response()
     query_text = dict_response['_text'].lower()
     if query_text.find("define ") != -1:
         topic = query_text[7:]
@@ -356,14 +311,9 @@ def define(dict_response):
     else:
         message = "Definition not found"
 
-    # resp.message(message)
-
-    # For TESTing -- START
-    send_sms_to_admin(message)
-    # For TESTing -- END
-
     return message
-    # return resp
+
+# Main SMS webhook
 
 def process_query(query):
     response = requests.get(url='https://api.wit.ai/message?v=20161022&q='+query,headers={'Authorization': 'Bearer TUDKLORVVMITDT4FCJFMAARQAWB2NLJ2'})
@@ -404,14 +354,16 @@ def process_query(query):
 
     return msg
 
-# main sms route
-@app.route("/sms", methods=['GET', 'POST'])
+@app.route("/sms", methods=['POST'])
 def sms():
     message_body = request.values.get('Body', None)
     resp = twilio.twiml.Response()
     msg = process_query(message_body)
+    if test_mode:
+        send_sms_to_admin(msg)
     resp.message(msg)
     return str(resp)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

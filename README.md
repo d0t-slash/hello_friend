@@ -1,4 +1,4 @@
-# hello_friend
+# [hello_friend](http://hello-frrriend.herokuapp.com/)
 
 Code.Fun.Do 2016 Hackathon project by team ./ [dot slash]
 

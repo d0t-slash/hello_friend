@@ -25,11 +25,62 @@
 						<h1 class="major">hello_friend</h1>
 						<section>
 							<blockquote>
-								<h3>TBA</h3>
+								<h3>Code.Fun.Do 2016 Hackathon project by team ./ [dot slash]</h3>
 							</blockquote>
+
+							<h3>A Q&A service through SMS.</h3>
+
+							<h3>Send an SMS to <a href="sms:+13609001701">+1 360-900-1701</a></h3>
+
 						</section>
 					</div>
 				</section>
+
+				<hr/>
+
+				<section id="main" class="wrapper">
+					<div class="inner">
+						<h2 class="main">Features</h2>
+						<ul>
+							<li>Call for help using the SOS modlie.</li>
+							<li>Find the best route to your destination.</li>
+							<li>Catch up on the latest news.</li>
+							<li>Find out meaning for a new word.</li>
+							<li>Find your nearest ATM.</li>
+							<li>In a foreign country? Use Translate to speak the native language.</li>
+							<li>Keep up with the stock market.</li>
+							<li>Check out information on all the movies.</li>
+							<li>Prepare for sun or rain with weather updates.</li>
+						</ul>
+						<p>And the best part? No need to have Internet, or even a smartphone.</p>
+					</div>
+				</section>
+
+				<hr/>
+
+				<section id="main" class="wrapper">
+					<div class="inner">
+						<h2>Test it out!</h2>
+						<form action="" method="post" name="/">
+							{{ form.hidden_tag() }}
+							<div class="row uniform">
+								<div class="12u 12u$(xsmall)">
+									{{ form.phone_number(size=14, placeholder='Phone number') }}
+								</div>
+							</div>
+							<div class="row uniform">
+								<div class="12u$ 12u$(xsmall)">
+									{{ form.query_string(placeholder='Query string') }}
+								</div>
+								<div class="2u$ 12u$(xsmall)">
+									<input type="submit" value="Test">
+								</div>
+							</div>
+						</form>
+					</div>
+
+				</section>
+
 			</div>
 
 		<!-- Footer -->
