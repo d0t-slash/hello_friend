@@ -65,19 +65,20 @@ noIntent = [
 
 @app.route("/no_intent", methods=['POST'])
 def no_intent():
-    resp = twilio.twiml.Response()
+    # resp = twilio.twiml.Response()
     message = random.choice(noIntent)
-    resp.message(message)
+    # resp.message(message)
 
     # For TESTing -- START
     # send_sms_to_admin(message)
     # For TESTing -- END
 
-    return resp
+    return message
+    # return resp
 
 @app.route("/sos", methods=["POST"])
 def sos(dict_response):
-    resp = twilio.twiml.Response()
+    # resp = twilio.twiml.Response()
     query_text = dict_response["_text"].lower()
 
     # remove sos prefix and clean location string
@@ -104,17 +105,18 @@ def sos(dict_response):
         else:
             break
 
-    resp.message(message)
+    # resp.message(message)
 
     # For TESTing -- START
     send_sms_to_admin(message)
     # For TESTing -- END
 
-    return resp
+    return message
+    # return resp
 
 @app.route("/weather", methods=['POST'])
 def weather(entities):
-    resp = twilio.twiml.Response()
+    # resp = twilio.twiml.Response()
     location = entities['location'][0]['value'].lower()
     response = requests.get(url="http://api.openweathermap.org/data/2.5/weather?q=" + location + "&APPID=500d01a6ece6498b1cbf94ed23519119")
     dict_response = json.loads(response.text)
@@ -133,17 +135,18 @@ def weather(entities):
     except:
         message += "."
 
-    resp.message(message)
+    # resp.message(message)
 
     # For TESTing -- START
     send_sms_to_admin(message)
     # For TESTing -- END
 
-    return resp
+    return message
+    # return resp
 
 @app.route("/navigate", methods=['POST'])
 def navigate(entities):
-    resp = twilio.twiml.Response()
+    # resp = twilio.twiml.Response()
     destination = entities['to'][0]['value']
     origin = entities['from'][0]['value'].lower()
 
@@ -166,17 +169,18 @@ def navigate(entities):
         message += "\n"
         count +=1
 
-    resp.message(message)
+    # resp.message(message)
 
     # For TESTing -- START
     send_sms_to_admin(message)
     # For TESTing -- END
 
-    return resp
+    return message
+    # return resp
 
 @app.route("/translate", methods=['POST'])
 def translate(entities):
-    resp = twilio.twiml.Response()
+    # resp = twilio.twiml.Response()
 
     message = ""
 
@@ -199,17 +203,18 @@ def translate(entities):
         translator = Translator('SMSAssistant', 'fhV+AdYFiK0QfQ4PFys+oQ/T0xiBBVQa32kxxbP55Ks=')
         message += translator.translate(text_for_translation, language)
 
-    resp.message(message)
+    # resp.message(message)
 
     # For TESTing -- START
     send_sms_to_admin(message)
     # For TESTing -- END
 
-    return resp
+    return message
+    # return resp
 
 @app.route("/news", methods=['POST'])
 def getNews(entities):
-    resp = twilio.twiml.Response()
+    # resp = twilio.twiml.Response()
     newstopic = entities['news_topic'][0]['value'].lower()
 
     # default topic
@@ -232,16 +237,17 @@ def getNews(entities):
         for item in news:
             message += "- " + item.get('Title') + "\n"
     
-    resp.message(message)
+    # resp.message(message)
 
     # For TESTing -- START
     send_sms_to_admin(message)
     # For TESTing -- END
-    return resp
+    return message
+    # return resp
 
 @app.route("/imdb", methods=['POST'])
 def imdb(dict_response):
-    resp = twilio.twiml.Response()
+    # resp = twilio.twiml.Response()
     query_text = dict_response['_text'].lower()
     if query_text.find("imdb ") != -1:
         query_text = query_text[5:]
@@ -266,17 +272,17 @@ def imdb(dict_response):
     if data["Plot"] != "N/A":
         message += "Plot: " + data["Plot"]
 
-    resp.message(message)
+    # resp.message(message)
 
     # For TESTing -- START
     send_sms_to_admin(message)
     # For TESTing -- END
-
-    return resp
+    return message
+    # return resp
 
 @app.route("/stocks", methods=['POST'])
 def stocks(dict_response):
-    resp = twilio.twiml.Response()
+    # resp = twilio.twiml.Response()
     query_text = dict_response['_text'].lower()
     if query_text.find("stocks ") != -1:
         query_text = query_text[7:]
@@ -291,14 +297,16 @@ def stocks(dict_response):
     message += "Short ratio: " + y.get_short_ratio() + "\n"
     message += "Previous close: " + y.get_prev_close() + "\n"
 
-    resp.message(message)
+    # resp.message(message)
 
     # For TESTing -- START
     send_sms_to_admin(message)
 
+    return message
+
 @app.route("/atm", methods=['POST'])
 def atm(dict_response):
-    resp = twilio.twiml.Response()
+    # resp = twilio.twiml.Response()
     query_text = dict_response['_text'].lower()
     if query_text.find("atm near ") != -1:
         query_text = query_text[9:]
@@ -319,17 +327,18 @@ def atm(dict_response):
         else:
             break
 
-    resp.message(message)
+    # resp.message(message)
 
     # For TESTing -- START
     send_sms_to_admin(message)
     # For TESTing -- END
 
-    return resp
+    return message
+    # return resp
 
 @app.route("/define", methods=['POST'])
 def define(dict_response):
-    resp = twilio.twiml.Response()
+    # resp = twilio.twiml.Response()
     query_text = dict_response['_text'].lower()
     if query_text.find("define ") != -1:
         topic = query_text[7:]
@@ -347,13 +356,14 @@ def define(dict_response):
     else:
         message = "Definition not found"
 
-    resp.message(message)
+    # resp.message(message)
 
     # For TESTing -- START
     send_sms_to_admin(message)
     # For TESTing -- END
 
-    return resp
+    return message
+    # return resp
 
 def process_query(query):
     response = requests.get(url='https://api.wit.ai/message?v=20161022&q='+query,headers={'Authorization': 'Bearer TUDKLORVVMITDT4FCJFMAARQAWB2NLJ2'})
@@ -398,8 +408,10 @@ def process_query(query):
 @app.route("/sms", methods=['GET', 'POST'])
 def sms():
     message_body = request.values.get('Body', None)
+    resp = twilio.twiml.Response()
     msg = process_query(message_body)
-    return str(msg)
+    resp.message(msg)
+    return str(resp)
 
 if __name__ == "__main__":
     app.run(debug=True)
