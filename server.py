@@ -50,8 +50,7 @@ def test_method(phone):
     try:
         query = request.form.get('query')
         msg = process_query(query)
-        client = TwilioRestClient(twilio_account_sid, twilio_auth_token)
-        message = client.messages.create(to=number, from_="+13609001701", body=str(msg))
+        send_sms_to_number(str(msg), phone)
         return "Message " + str(msg) + " sent to " + str(phone) + "."
     except:
         return "Failed to send message"
