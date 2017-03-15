@@ -15,6 +15,14 @@ google_places = GooglePlaces(gp_api_key)
 
 bing_api_key = 'oeToVPEyRZIASRK2n2byOU1x0EMatLIpd8kCIvwXmMw'
 
+# Credentials owner: avikantsainidbz@gmail.com
+# Find these values at https://twilio.com/user/account
+twilio_account_sid = "ACab3e465e67051257d227bf49a3c9a58e"
+twilio_auth_token = "ca96731e12b0442bcf5b1c8f7dedc58d"
+
+admin_phone = "+918095138333"
+# admin_phone = "+918095718111"
+
 # For TESTing -- START
 from twilio.rest import TwilioRestClient
 # For TESTing -- END
@@ -27,17 +35,27 @@ app = Flask(__name__)
 def home_page():
     return render_template('index.html')
 
+def send_sms_to_number(message, number):
+    client = TwilioRestClient(twilio_account_sid, twilio_auth_token)
+    message = client.messages.create(to=number, from_="+13609001701", body=message)
+
 # For TESTing -- START
 def send_sms_to_admin(message):
-    # Credentials owner: avikantsainidbz@gmail.com
-    # Find these values at https://twilio.com/user/account
-    account_sid = "ACab3e465e67051257d227bf49a3c9a58e"
-    auth_token = "ca96731e12b0442bcf5b1c8f7dedc58d" ## Have to find out where is this.
-    client = TwilioRestClient(account_sid, auth_token)
+    send_sms_to_number(message, admin_phone)
 
-    message = client.messages.create(to="+918095718111", from_="+13609001701", body=message)
-    # message = client.messages.create(to="+918095138333", from_="+13609001701", body=message)
+# Test routing to specific phone number
 
+@app.route("/test_phone/<phone>", methods=['POST'])
+def test_method(phone):
+    try:
+        query = request.form.get('query')
+        msg = process_query(query)
+        client = TwilioRestClient(twilio_account_sid, twilio_auth_token)
+        message = client.messages.create(to=number, from_="+13609001701", body=str(msg))
+        return "Message " + str(msg) + " sent to " + str(phone) + "."
+    except:
+        return "Failed to send message"
+    
 # For TESTing -- END
 
 noIntent = [
@@ -338,11 +356,8 @@ def define(dict_response):
 
     return resp
 
-@app.route("/sms", methods=['GET', 'POST'])
-def sms():
-    message_body = request.values.get('Body', None)
-
-    response = requests.get(url='https://api.wit.ai/message?v=20161022&q='+message_body,headers={'Authorization': 'Bearer TUDKLORVVMITDT4FCJFMAARQAWB2NLJ2'})
+def process_query(query):
+    response = requests.get(url='https://api.wit.ai/message?v=20161022&q='+query,headers={'Authorization': 'Bearer TUDKLORVVMITDT4FCJFMAARQAWB2NLJ2'})
     dict_response = json.loads(response.text)
 
     intent = None
@@ -378,6 +393,13 @@ def sms():
     else:
         msg = "Feature not supported"
 
+    return msg
+
+# main sms route
+@app.route("/sms", methods=['GET', 'POST'])
+def sms():
+    message_body = request.values.get('Body', None)
+    msg = process_query(message_body)
     return str(msg)
 
 if __name__ == "__main__":
