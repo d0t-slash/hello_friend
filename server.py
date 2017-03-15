@@ -101,7 +101,13 @@ def sos(dict_response):
     if query_text.find(" help") != -1:
         query_text = query_text[:-5]
 
-    query_result = google_places.nearby_search(location=query_text, keyword='hospital', radius=5000, types=[types.TYPE_HOSPITAL])
+    message = ""
+
+    try:
+        query_result = google_places.nearby_search(location=query_text, keyword='hospital', radius=5000, types=[types.TYPE_HOSPITAL])
+    except:
+        message = "Looks like we are facing technical difficulties. Please try again later."
+        return message
 
     number_of_places = 0
     message = "List of Hospitals:\n"
@@ -120,7 +126,13 @@ def sos(dict_response):
 @app.route("/weather", methods=['POST'])
 def weather(entities):
     location = entities['location'][0]['value'].lower()
-    response = requests.get(url="http://api.openweathermap.org/data/2.5/weather?q=" + location + "&APPID=500d01a6ece6498b1cbf94ed23519119")
+    message = ""
+    try:
+        response = requests.get(url="http://api.openweathermap.org/data/2.5/weather?q=" + location + "&APPID=500d01a6ece6498b1cbf94ed23519119")
+    except:
+        message = "Looks like we are facing technical difficulties. Please try again later."
+        return message
+
     dict_response = json.loads(response.text)
 
     temperature_in_celsius = round(dict_response['main']['temp'] - 273.15, 2)
@@ -143,9 +155,15 @@ def weather(entities):
 def navigate(entities):
     destination = entities['to'][0]['value']
     origin = entities['from'][0]['value'].lower()
+    message = ""
 
     key = "GSC5hkB0CEmUyk4nI2MY~HxNEzo1P1bHB1sX8EzDJpA~AmYeCHqvBerEI06DBSKWfo4pgB1w9Krgk7EH6lhGqqf3s5RaJArOzWJ-SL6AYVVw"
-    bingMapsResponse = requests.get(url="http://dev.virtualearth.net/REST/V1/Routes/Driving?wp.0=" + origin + "&wp.1=" + destination + "&avoid=minimizeTolls&key="+key)
+    try:
+        bingMapsResponse = requests.get(url="http://dev.virtualearth.net/REST/V1/Routes/Driving?wp.0=" + origin + "&wp.1=" + destination + "&avoid=minimizeTolls&key="+key)
+    except:
+        message = "Looks like we are facing technical difficulties. Please try again later."
+        return message
+
     bingMaps_dict = json.loads(bingMapsResponse.text)
     resources = bingMaps_dict.get('resourceSets')[0].get('resources')
     routeLegs = resources[0].get('routeLegs')
@@ -188,7 +206,11 @@ def translate(entities):
 
     if message != "Language not supported!":
         message = "Translation for " + text_for_translation + " to " + language + ":\n"
-        translator = Translator('SMSAssistant', 'fhV+AdYFiK0QfQ4PFys+oQ/T0xiBBVQa32kxxbP55Ks=')
+        try:
+            translator = Translator('SMSAssistant', 'fhV+AdYFiK0QfQ4PFys+oQ/T0xiBBVQa32kxxbP55Ks=')
+        except:
+            message = "Looks like we are facing technical difficulties. Please try again later."
+            return message
         message += translator.translate(text_for_translation, language)
 
     return message
@@ -196,13 +218,18 @@ def translate(entities):
 @app.route("/news", methods=['POST'])
 def getNews(entities):
     newstopic = entities['news_topic'][0]['value'].lower()
+    message = ""
 
     # default topic
     if newstopic is None:
         newstopic = "world"
     
-    response = requests.get(url='https://api.datamarket.azure.com/Bing/Search/News?$format=json&Query=%27' + newstopic + "%27", \
+    try:
+        response = requests.get(url='https://api.datamarket.azure.com/Bing/Search/News?$format=json&Query=%27' + newstopic + "%27", \
      auth=(bing_api_key, bing_api_key))
+    except:
+        message = "Looks like we are facing technical difficulties. Please try again later."
+        return message
 
     news_dict = json.loads(response.text)
     news = news_dict.get('d').get('results')
@@ -227,11 +254,15 @@ def imdb(dict_response):
     query_text = dict_response['_text'].lower()
     if query_text.find("imdb ") != -1:
         query_text = query_text[5:]
+    message = ""
 
-    response = omdb.request(t='' + query_text + '', r='json')
+    try:
+        response = omdb.request(t='' + query_text + '', r='json')
+    except:
+        message = "Looks like we are facing technical difficulties. Please try again later."
+        return message
     data = json.loads(response.text)
 
-    message = ""
     mediatype = data["Type"]
     year = data["Year"]
     title = data["Title"]
@@ -257,8 +288,11 @@ def stocks(dict_response):
         query_text = query_text[7:]
 
     message = ""
-
-    y = Share(query_text)
+    try:
+        y = Share(query_text)
+    except:
+        message = "Looks like we are facing technical difficulties. Please try again later."
+        return message
     message += "Trading information for " + y.get_name() + " (" + query_text + ") :\n"
     message += "Opened: " + y.get_open() + "\n"
     message += "Current: " + y.get_price() + "\n"
@@ -273,8 +307,12 @@ def atm(dict_response):
     query_text = dict_response['_text'].lower()
     if query_text.find("atm near ") != -1:
         query_text = query_text[9:]
-
-    query_result = google_places.nearby_search(location=query_text, keyword='atm', radius=5000, types=[types.TYPE_ATM])
+    message = ""
+    try:
+        query_result = google_places.nearby_search(location=query_text, keyword='atm', radius=5000, types=[types.TYPE_ATM])
+    except:
+        message = "Looks like we are facing technical difficulties. Please try again later."
+        return message
 
     number_of_places = 0
     message = ""
@@ -297,8 +335,12 @@ def define(dict_response):
     query_text = dict_response['_text'].lower()
     if query_text.find("define ") != -1:
         topic = query_text[7:]
-
-    r = requests.get(url='http://api.duckduckgo.com/?q=' + topic + '&format=json&pretty=1')
+    message = ""
+    try:
+        r = requests.get(url='http://api.duckduckgo.com/?q=' + topic + '&format=json&pretty=1')
+    except:
+        message = "Looks like we are facing technical difficulties. Please try again later."
+        return message
 
     message = ""
 
@@ -316,7 +358,12 @@ def define(dict_response):
 # Main SMS webhook
 
 def process_query(query):
-    response = requests.get(url='https://api.wit.ai/message?v=20161022&q='+query,headers={'Authorization': 'Bearer TUDKLORVVMITDT4FCJFMAARQAWB2NLJ2'})
+    msg = ""
+    try:
+        response = requests.get(url='https://api.wit.ai/message?v=20161022&q='+query,headers={'Authorization': 'Bearer TUDKLORVVMITDT4FCJFMAARQAWB2NLJ2'})
+    except:
+        msg = "Looks like we are facing technical difficulties. Please try again later."
+        return msg
     dict_response = json.loads(response.text)
 
     intent = None
