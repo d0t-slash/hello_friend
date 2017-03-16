@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, flash, redirect, render_template
 from flask_wtf import Form
 from wtforms import StringField, BooleanField
 from wtforms.validators import DataRequired
@@ -50,8 +50,9 @@ def home_page():
         print("Sending sms to " + number + " with query \'" + query + "\'.")
         message = process_query(query)
         send_sms_to_number(message, number)
-        return redirect('/')
-    return render_template('index.html', form=form)
+        flash("Sent SMS to " + number + ": \'" + message + "\'.")
+        return render_template('index.html', form=form, number=number, query=query, showdetails=False)
+    return render_template('index.html', form=form, showdetails=True)
 
 
 # Test routes
@@ -135,11 +136,13 @@ def sos(dict_response):
 
 @app.route("/weather", methods=['POST'])
 def weather(entities):
-    location = entities['location'][0]['value'].lower()
     message = ""
-    response = requests.get(url="http://api.openweathermap.org/data/2.5/weather?q=" + location + "&APPID=500d01a6ece6498b1cbf94ed23519119")
-
     try:
+        try:
+            location = entities['location'][0]['value'].lower()
+        except:
+            location = entities['local_search_query'][0]['value']
+        response = requests.get(url="http://api.openweathermap.org/data/2.5/weather?q=" + location + "&APPID=500d01a6ece6498b1cbf94ed23519119")
         dict_response = json.loads(response.text)
 
         temperature_in_celsius = round(dict_response['main']['temp'] - 273.15, 2)
@@ -380,6 +383,8 @@ def process_query(query):
             intent = dict_response['entities']['intent'][0]['value']
             confidence = dict_response['entities']['intent'][0]['confidence']
             entities = dict_response['entities']
+            print("Entities: ")
+            print(entities)
     except:
         msg = no_intent()
         return msg
