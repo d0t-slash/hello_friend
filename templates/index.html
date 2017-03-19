@@ -57,10 +57,11 @@
 											<div class="12u 12u$(xsmall)">
 												{{ form.phone_number(size=14, placeholder='Phone number') }}
 											</div>
-										</div>
-										<div class="row uniform">
 											<div class="12u$ 12u$(xsmall)">
 												{{ form.query_string(placeholder='Query string') }}
+											</div>
+											<div class="12u$ 12u$(xsmall)">
+												{{ form.password_field(placeholder='Secret offering to admin') }}
 											</div>
 											<div class="2u$ 12u$(xsmall)">
 												<input type="submit" value="Test">
@@ -129,10 +130,11 @@
 								<div class="12u 12u$(xsmall)">
 									{{ form.phone_number(size=14, placeholder='Phone number') }}
 								</div>
-							</div>
-							<div class="row uniform">
 								<div class="12u$ 12u$(xsmall)">
 									{{ form.query_string(placeholder='Query string') }}
+								</div>
+								<div class="12u$ 12u$(xsmall)">
+									{{ form.password_field(placeholder='Secret offering to admin') }}
 								</div>
 								<div class="2u$ 12u$(xsmall)">
 									<input type="submit" value="Test">

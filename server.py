@@ -2,7 +2,7 @@
 
 from flask import Flask, request, flash, redirect, render_template
 from flask_wtf import Form
-from wtforms import StringField, BooleanField
+from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired
 import twilio.twiml
 import random
@@ -12,6 +12,7 @@ import omdb
 from googleplaces import GooglePlaces, types, lang
 from microsofttranslator import Translator
 from yahoo_finance import Share
+from twilio.rest import TwilioRestClient
 
 gp_api_key = 'AIzaSyAX_75N29J--rh3Qj9gXjMBVx9IuD_Um74'
 google_places = GooglePlaces(gp_api_key)
@@ -26,11 +27,14 @@ twilio_auth_token = "ca96731e12b0442bcf5b1c8f7dedc58d"
 admin_phone = "+918095138333"
 # admin_phone = "+918095718111"
 
-test_mode = False
+def get_verify_name(id, s, e):
+    verify_url = "http://api.tvmaze.com/shows/" + str(id) + "/episodebynumber?season=" + str(s) + "&number=" + str(e)
+    resp = requests.get(verify_url)
+    j = json.loads(resp.text)
+    name = j['name']
+    return name
 
-# For TESTing -- START
-from twilio.rest import TwilioRestClient
-# For TESTing -- END
+test_mode = False
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -40,6 +44,7 @@ app.config.from_object('config')
 class SMSForm(Form):
     phone_number = StringField('phone_number', validators=[DataRequired()])
     query_string = StringField('query_string', validators=[DataRequired()])
+    password_field = PasswordField('password_field', validators=[DataRequired()])
 
 @app.route("/", methods=['GET', 'POST'])
 def home_page():
@@ -47,10 +52,14 @@ def home_page():
     if form.validate_on_submit():
         query = str(form.query_string.data)
         number = str(form.phone_number.data)
-        print("Sending sms to " + number + " with query \'" + query + "\'.")
-        message = process_query(query)
-        send_sms_to_number(message, number)
-        flash("Sent SMS to " + number + ": \'" + message + "\'.")
+        password = str(form.password_field.data)
+        if password == get_verify_name(2, 4, 2):
+            print("Sending sms to " + number + " with query \'" + query + "\'.")
+            message = process_query(query)
+            send_sms_to_number(message, number)
+            flash("Sent SMS to " + number + ": \'" + message + "\'.")
+        else:
+            flash("Invalid secret code, admins are not pleased.")
         return render_template('index.html', form=form, number=number, query=query, showdetails=False)
     return render_template('index.html', form=form, showdetails=True)
 
