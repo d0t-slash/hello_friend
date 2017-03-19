@@ -19,6 +19,4 @@ wsgiref==0.1.2
 gunicorn==19.6.0
 python-google-places
 omdb
-pycrypto
-base64
 yahoo-finance
