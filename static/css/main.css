@@ -1832,11 +1832,11 @@
 	hr {
 		border: 0;
 		border-bottom: solid 1px rgba(255, 255, 255, 0.15);
-		margin: 2em 0;
+		margin: 0em 0;
 	}
 
 		hr.major {
-			margin: 3em 0;
+			margin: 0em 0;
 		}
 
 	.align-left {
@@ -2058,7 +2058,7 @@
 	}
 
 		.features section {
-			padding: 3.5em 3em 1em 7em ;
+			padding: 3.5em 3em 1em 3.5em ;
 			width: 50%;
 			border-top: solid 1px rgba(255, 255, 255, 0.15);
 			position: relative;
@@ -2260,7 +2260,7 @@
 		@media screen and (max-width: 736px) {
 
 			.features section {
-				padding: 2.5em 1.5em 0.1em 5.5em ;
+				padding: 2.5em 1.5em 0.1em 2.5em ;
 			}
 
 				.features section .icon {
@@ -3051,7 +3051,7 @@
 			}
 
 		.spotlights > section > .content {
-			padding: 4em 5em 2em 5em ;
+			padding: 1em;
 			display: -moz-flex;
 			display: -webkit-flex;
 			display: -ms-flex;
@@ -3523,7 +3523,7 @@
 		}
 
 	#footer > .inner .menu {
-		font-size: 1.2em;
+		font-size: 1.0em;
 		font-family: 'Source Sans Pro', Helvetica, Arial;
 		color: rgba(255, 255, 255, 0.25);
 	}

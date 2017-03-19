@@ -51,9 +51,6 @@
 						{% if not showdetails %}
 							<section>
 								<div class="inner">
-									{% if showdetails %}
-										<h2>Test it out!</h2>
-									{% endif %}
 									<form action="" method="post" name="/">
 										{{ form.hidden_tag() }}
 										<div class="row uniform">
@@ -103,6 +100,25 @@
 
 				{% endif %}
 
+				<section id="main" class="wrapper">
+					<div class="inner">
+						<h3>Examples</h3>
+						<ul>
+							<li><em>"Navigate from #locality# to #locality#"</em>, <em>"Directions from #city# to #city#"</em></li>
+							<li><em>"Whats the weather in #city# today"</em>, <em>"Weather in #city#"</em>, <em>"Will it rain in #city# today"</em></li>
+							<li><em>"Help #locality#, "city#</em>, <em>"sos locality, city"</em></li>
+							<li><em>"How do you say #word# in language.</em></li>
+							<li><em>"imdb #movie#"</em></li>
+							<li><em>"stocks #tradename#"</em>, <em>"stocks GOOG"</em></li>
+							<li><em>"atm near #locality#"</em>, <em>"atm #city#"</em></li>
+							<li><em>"define #word#"</em>, <em>"define #phrase#"</em></li>
+							<li><em>"show me sports news"</em>, <em>"news world"</em></li>
+						</ul>
+					</div>
+				</section>
+
+				<hr/>
+
 				{% if showdetails %}
 				<section id="main" class="wrapper">
 					<div class="inner">
@@ -123,20 +139,6 @@
 								</div>
 							</div>
 						</form>
-					</div>
-					<div class="inner">
-						<h3>Examples</h3>
-						<ul>
-							<li><em>"Navigate from #locality# to #locality#"</em>, <em>"Directions from #city# to #city#"</em></li>
-							<li><em>"Whats the weather in #city# today"</em>, <em>"Weather in #city#"</em>, <em>"Will it rain in #city# today"</em></li>
-							<li><em>"Help #locality#, "city#</em>, <em>"sos locality, city"</em></li>
-							<li><em>"How do you say #word# in language.</em></li>
-							<li><em>"imdb #movie#"</em></li>
-							<li><em>"stocks #tradename#"</em>, <em>"stocks GOOG"</em></li>
-							<li><em>"atm near #locality#"</em>, <em>"atm #city#"</em></li>
-							<li><em>"define #word#"</em>, <em>"define #phrase#"</em></li>
-							<li><em>"show me sports news"</em>, <em>"news world"</em></li>
-						</ul>
 					</div>
 				</section>
 				{% endif %}

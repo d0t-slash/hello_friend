@@ -103,34 +103,45 @@ def technical_issues():
 @app.route("/sos", methods=["POST"])
 def sos(dict_response):
     message = ""
-    try:
-        query_text = dict_response["_text"].lower()
+    # try:
+    query_text = dict_response["_text"].lower()
 
-        # remove sos prefix and clean location string
-        if query_text.find("sos ") != -1:
-            query_text = query_text[4:]
-        if query_text.find(" sos") != -1:
-            query_text = query_text[:-4]
-        if query_text.find("help ") != -1:
-            query_text = query_text[5:]
-        if query_text.find(" help") != -1:
-            query_text = query_text[:-5]
+    # remove sos prefix and clean location string
+    issos = False
+    if query_text.find("sos ") != -1:
+        query_text = query_text[4:]
+        issos = True
+    if query_text.find(" sos") != -1:
+        query_text = query_text[:-4]
+        issos = True
+    if query_text.find("help ") != -1:
+        query_text = query_text[5:]
+    if query_text.find(" help") != -1:
+        query_text = query_text[:-5]
 
-        query_result = google_places.nearby_search(location=query_text, keyword='hospital', radius=5000, types=[types.TYPE_HOSPITAL])
+    query_result = google_places.nearby_search(location=query_text, keyword='hospital', radius=5000, types=[types.TYPE_HOSPITAL])
 
-        number_of_places = 0
-        message = "List of Hospitals:\n"
+    number_of_places = 0
+    message = "Nearby hospitals: \n"
 
-        for place in query_result.places:
-            if number_of_places < 3:
-                number_of_places += 1
-                message = message + place.name
-                place_info = place.get_details()
-                message = message + ", Ph: " + place.local_phone_number + "\n"
-            else:
-                break
-    except:
-        message = technical_issues()
+    for place in query_result.places:
+        if number_of_places < 3:
+            number_of_places += 1
+            message += place.name
+            place_info = place.get_details()
+            message += ", Ph: " + place.local_phone_number + "\n"
+        else:
+            break
+    if issos:
+        query_result = google_places.nearby_search(location=query_text, keyword='police', radius=5000, types=[types.TYPE_POLICE])
+        if len(query_result.places) > 0:
+            place = query_result.places[0]
+            place.get_details()
+            message += "\nNearest police station: " + place.name
+            message += ", Ph: " + place.local_phone_number + "\n"
+
+    # except:
+    #     message = technical_issues()
 
     return message
 
@@ -205,26 +216,27 @@ def translate(entities):
 
     try:
         text_for_translation = entities['phrase_to_translate'][0]['value']
-        language =  entities['language'][0]['value'].lower()
-        if language == "spanish":
+        lang =  entities['language'][0]['value'].lower()
+        language = ""
+        if lang == "spanish":
             language = "es"
-        elif language == "french":
+        elif lang == "french":
             language = "fr"
-        elif language == "german":
+        elif lang == "german":
             language = "de"
-        elif language == "chinese":
+        elif lang == "chinese":
             language = "zh-CHS"
         else:
-            message = "Language not supported!"
+            message = "We don't support translation to " + lang + " as of now. Check back later as support is being added."
+            return message
 
-        if message != "Language not supported!":
-            message = "Translation for " + text_for_translation + " to " + language + ":\n"
-            try:
-                translator = Translator('SMSAssistant', 'fhV+AdYFiK0QfQ4PFys+oQ/T0xiBBVQa32kxxbP55Ks=')
-            except:
-                message = "Looks like we are facing technical difficulties. Please try again later."
-                return message
-            message += translator.translate(text_for_translation, language)
+        message = "\"" + text_for_translation + "\" in " + lang + " is \'"
+        translator = Translator('SMSAssistant', 'fhV+AdYFiK0QfQ4PFys+oQ/T0xiBBVQa32kxxbP55Ks=')
+        message += translator.translate(text_for_translation, language) + "\'"
+
+        if test_mode:
+            send_sms_to_admin(message)
+
     except:
         message = technical_issues()
 
@@ -390,6 +402,7 @@ def process_query(query):
         return msg
 
     if intent is None or confidence < 0.2:
+
         msg = no_intent()
     elif intent == "weather":
         msg = weather(entities)
