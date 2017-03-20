@@ -103,7 +103,7 @@ examples = [
     "atm near rajendra nagar hyderabad",
     "Define Hitler",
     "Show me sports news",
-    "Navigate from Lucknow to Kanpur",
+    "Directions from Lucknow to Kanpur",
 ]
 
 technicalIssues = [
@@ -214,7 +214,7 @@ def navigate(entities):
             except:
                 origin = entities['location'][0]['value']
         print("Navigating from " + origin + " to " + destination + ".")
-        message = ""
+        message = "Directions from " + origin + " to " + destination  + ":\n\n"
         key = "GSC5hkB0CEmUyk4nI2MY~HxNEzo1P1bHB1sX8EzDJpA~AmYeCHqvBerEI06DBSKWfo4pgB1w9Krgk7EH6lhGqqf3s5RaJArOzWJ-SL6AYVVw"
         try:
             try:
@@ -226,7 +226,6 @@ def navigate(entities):
             print(bingMaps_dict)
             resources = bingMaps_dict.get('resourceSets')[0].get('resources')
             routeLegs = resources[0].get('routeLegs')
-            message = ""
             distance = routeLegs[0].get('routeSubLegs')[0].get('travelDistance')
             message += "Total Trip Distance: " + str(distance) + " km\n"
             duration = routeLegs[0].get('routeSubLegs')[0].get('travelDuration')
