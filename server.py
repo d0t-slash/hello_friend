@@ -1,4 +1,4 @@
-#!/usr/bin/python
+2#!/usr/bin/python
 
 from flask import Flask, request, flash, redirect, render_template
 from flask_wtf import Form
@@ -92,21 +92,37 @@ noIntent = [
     "Sorry, I didn't understand that. Try rephrasing your request."
 ]
 
+examples = [
+    "Navigate from Lucknow to Kanpur",
+    "Will it rain in New York today",
+    "SOS Whitefield, Bangalore",
+    "Translate \'Have you gone crazy\'' to german",
+    "How do you say Madrid I'm finally here in spanish",
+    "imdb inception",
+    "stocks AAPL",
+    "atm near rajendra nagar hyderabad",
+    "Define Hitler",
+    "Show me sports news",
+    "Navigate from Lucknow to Kanpur",
+]
+
 technicalIssues = [
     "Looks like we are facing technical difficulties, please try again in sometime.",
     "Looks like the server is taking to long to respond, please try again in sometime.",
-    "Looks like we have too many requests to handle at the moment, please try again in sometime."
+    "Looks like we have too many requests to handle at the moment, please try again in sometime.",
     "Our monkeys are fixing some bugs in the server, please try again in sometime."
 ]
 
 @app.route("/no_intent", methods=['POST'])
 def no_intent():
     message = random.choice(noIntent)
+    message += "\n\nDid you know you can try something like: \"" + random.choice(examples) + "\"\n\n- hello_friend."
     return message
 
 @app.route("/network_error", methods=['POST'])
 def technical_issues():
     message = random.choice(technicalIssues)
+    message += "\n\nDid you know you can try something like: \"" + random.choice(examples) + "\"\n\n- hello_friend."
     return message
 
 @app.route("/sos", methods=["POST"])
@@ -185,30 +201,46 @@ def weather(entities):
 
 @app.route("/navigate", methods=['POST'])
 def navigate(entities):
-    destination = entities['to'][0]['value']
-    origin = entities['from'][0]['value'].lower()
-    message = ""
-
-    key = "GSC5hkB0CEmUyk4nI2MY~HxNEzo1P1bHB1sX8EzDJpA~AmYeCHqvBerEI06DBSKWfo4pgB1w9Krgk7EH6lhGqqf3s5RaJArOzWJ-SL6AYVVw"
-    bingMapsResponse = requests.get(url="http://dev.virtualearth.net/REST/V1/Routes/Driving?wp.0=" + origin + "&wp.1=" + destination + "&avoid=minimizeTolls&key="+key)
-
     try:
-        bingMaps_dict = json.loads(bingMapsResponse.text)
-        resources = bingMaps_dict.get('resourceSets')[0].get('resources')
-        routeLegs = resources[0].get('routeLegs')
+        try:
+            destination = entities['to'][0]['value']
+        except:
+            destination = entities['search_query'][0]['value']
+        try:
+            origin = entities['from'][0]['value']
+        except:
+            try:
+                origin = entities['local_search_query'][0]['value']
+            except:
+                origin = entities['location'][0]['value']
+        print("Navigating from " + origin + " to " + destination + ".")
         message = ""
-        distance = routeLegs[0].get('routeSubLegs')[0].get('travelDistance')
-        message += "Total Trip Distance: " + str(distance) + " km\n"
-        duration = routeLegs[0].get('routeSubLegs')[0].get('travelDuration')
-        message += "Total Trip Duration: " + str(duration/60) + " min \n"
-        itineraryItems = routeLegs[0].get('itineraryItems')
-        count = 1
-        for item in itineraryItems:
-            message += str(count) + ". " + item.get('instruction').get('text') + " ("
-            message += str(item.get('travelDistance')) + " km, "
-            message += str(item.get('travelDuration') / 60 ) + " min)"
-            message += "\n"
-            count +=1
+        key = "GSC5hkB0CEmUyk4nI2MY~HxNEzo1P1bHB1sX8EzDJpA~AmYeCHqvBerEI06DBSKWfo4pgB1w9Krgk7EH6lhGqqf3s5RaJArOzWJ-SL6AYVVw"
+        try:
+            try:
+                bingMapsResponse = requests.get(url="http://dev.virtualearth.net/REST/V1/Routes/Driving?wp.0=" + origin + "&wp.1=" + destination + "&avoid=minimizeTolls&key="+key)
+                bingMaps_dict = json.loads(bingMapsResponse.text)
+            except:
+                message = network_error()
+                return message
+            print(bingMaps_dict)
+            resources = bingMaps_dict.get('resourceSets')[0].get('resources')
+            routeLegs = resources[0].get('routeLegs')
+            message = ""
+            distance = routeLegs[0].get('routeSubLegs')[0].get('travelDistance')
+            message += "Total Trip Distance: " + str(distance) + " km\n"
+            duration = routeLegs[0].get('routeSubLegs')[0].get('travelDuration')
+            message += "Total Trip Duration: " + str(duration/60) + " min \n"
+            itineraryItems = routeLegs[0].get('itineraryItems')
+            count = 1
+            for item in itineraryItems:
+                message += str(count) + ". " + item.get('instruction').get('text') + " ("
+                message += str(item.get('travelDistance')) + " km, "
+                message += str(item.get('travelDuration') / 60 ) + " min)"
+                message += "\n"
+                count +=1
+        except:
+            message = "We could not find a route from " + origin + " to " + destination + ". Please bear with us as we try to resolve this issue."
 
         # Precaution
         if (len(message) > 1536):
@@ -344,7 +376,7 @@ def atm(dict_response):
         query_result = google_places.nearby_search(location=query_text, keyword='atm', radius=5000, types=[types.TYPE_ATM])
 
         number_of_places = 0
-        message = ""
+        message = "ATM's near \'" + query_text + "\':\n"
 
         for place in query_result.places:
             if number_of_places < 5:
@@ -378,7 +410,7 @@ def define(dict_response):
             definition = top_definitions['Text']
             message = "\"" + topic + "\": " + definition
         else:
-            message = "Definition not found"
+            message = "Definition for " + topic + " was not found. We're working on this."
     except:
         message = technical_issues()
     return message
