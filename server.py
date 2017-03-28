@@ -1,4 +1,4 @@
-2#!/usr/bin/python
+#!/usr/bin/python
 
 from flask import Flask, request, flash, redirect, render_template
 from flask_wtf import Form
@@ -44,7 +44,7 @@ app.config.from_object('config')
 class SMSForm(Form):
     phone_number = StringField('phone_number', validators=[DataRequired()])
     query_string = StringField('query_string', validators=[DataRequired()])
-    password_field = PasswordField('password_field', validators=[DataRequired()])
+    # password_field = PasswordField('password_field', validators=[DataRequired()])
 
 @app.route("/", methods=['GET', 'POST'])
 def home_page():
@@ -52,14 +52,14 @@ def home_page():
     if form.validate_on_submit():
         query = str(form.query_string.data)
         number = str(form.phone_number.data)
-        password = str(form.password_field.data)
-        if password == get_verify_name(2, 4, 2):
-            print("Sending sms to " + number + " with query \'" + query + "\'.")
-            message = process_query(query)
-            send_sms_to_number(message, number)
-            flash("Sent SMS to " + number + ": \'" + message + "\'.")
-        else:
-            flash("Invalid secret code, admins are not pleased.")
+        # password = str(form.password_field.data)
+        # if password == get_verify_name(2, 4, 2):
+        print("Sending sms to " + number + " with query \'" + query + "\'.")
+        message = process_query(query)
+        send_sms_to_number(message, number)
+        flash("Sent SMS to " + number + ": \'" + message + "\'.")
+        # else:
+        #     flash("Invalid secret code, admins are not pleased.")
         return render_template('index.html', form=form, number=number, query=query, showdetails=False)
     return render_template('index.html', form=form, showdetails=True)
 
