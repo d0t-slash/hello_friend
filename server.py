@@ -493,5 +493,11 @@ def temp_voice_2():
     resp.play("http://hello-frrriend.herokuapp.com/static/jivan.mp3")
     return str(resp)
 
+@app.route("/srp", methods=['POST', 'GET'])
+def temp_voice_3():
+    resp = twilio.twiml.Response()
+    resp.play("http://hello-frrriend.herokuapp.com/static/srp.mp3")
+    return str(resp)
+
 if __name__ == "__main__":
     app.run(debug=True)
