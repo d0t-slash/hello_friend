@@ -481,13 +481,13 @@ def sms():
 # ------
 
 @app.route("/temp", methods=['POST', 'GET'])
-def temp_void():
+def temp_voice():
     resp = twilio.twiml.Response()
     resp.say("Don't talk please. You don't know me and perhaps we will never meet, but I need to to listen very closely. Are you listening?. Good. They know.")
     return str(resp)
 
 @app.route("/ykl", methods=['POST', 'GET'])
-def temp_void():
+def temp_voice_2():
     resp = twilio.twiml.Response()
     resp.say("Don't talk please. YKL sucks balls.")
     resp.play("http://hello-frrriend.herokuapp.com/static/jivan.mp3")
