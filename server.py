@@ -478,5 +478,13 @@ def sms():
     return str(resp)
 
 
+# ------
+
+@app.route("/temp", methods=['POST', 'GET'])
+def temp_void():
+    resp = twilio.twiml.Response()
+    resp.say("Don't talk please. YKL Sucks Balls. Jiven Che to Jindagi Che.")
+    return str(resp)
+
 if __name__ == "__main__":
     app.run(debug=True)

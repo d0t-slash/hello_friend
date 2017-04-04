@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+    <Say voice="alice">Hello there</Say>
+    <Play>http://avikantz.xyz/other/srp.mp3</Play>
+</Response>
