@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from flask import Flask, request, flash, redirect, render_template
+from flask import Flask, request, flash, redirect, render_template, jsonify
 from flask_wtf import Form
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired
@@ -26,6 +26,16 @@ twilio_auth_token = "ca96731e12b0442bcf5b1c8f7dedc58d"
 
 admin_phone = "+918095138333"
 # admin_phone = "+918095718111"
+
+# Returns a JSON formatted data with a HTTP status code
+def dataFormatter(code, message, data):
+    resp = jsonify({
+            'code': code,
+            'message': message,
+            'data': data
+        })
+    resp.status_code = code
+    return resp
 
 def get_verify_name(id, s, e):
     verify_url = "http://api.tvmaze.com/shows/" + str(id) + "/episodebynumber?season=" + str(s) + "&number=" + str(e)
@@ -480,23 +490,115 @@ def sms():
 
 # ------
 
-@app.route("/temp", methods=['POST', 'GET'])
-def temp_voice():
-    resp = twilio.twiml.Response()
-    resp.say("Don't talk please. You don't know me and perhaps we will never meet, but I need to to listen very closely. Are you listening?. Good. They know.")
-    return str(resp)
+# Update the json file.
+def saveFile():
+    with open('data/voice.json', 'w') as outfile:
+        json.dump(data, outfile)
 
-@app.route("/ykl", methods=['POST', 'GET'])
-def temp_voice_2():
-    resp = twilio.twiml.Response()
-    resp.say("Don't talk please. YKL sucks balls.")
-    resp.play("http://hello-frrriend.herokuapp.com/static/jivan.mp3")
-    return str(resp)
+# Open the given json file in data.
+try:
+    with open('data/voice.json') as data_file:
+        data = json.load(data_file)
+except:
+    data = []
+    saveFile();
 
-@app.route("/srp", methods=['POST', 'GET'])
-def temp_voice_3():
+class VoiceForm(Form):
+    phone_number = StringField('phone_number', validators=[DataRequired()])
+    title_field = StringField('title_field', validators=[DataRequired()])
+    message_field = StringField('message_field')
+    url_field = StringField('url_field')
+    password_field = PasswordField('password_field', validators=[DataRequired()])
+
+@app.route("/voice/", methods=['GET', 'POST'])
+def voice_page():
+    form = VoiceForm()
+    if form.validate_on_submit():
+        title = str(form.title_field.data)
+        message = str(form.message_field.data)
+        url = str(form.url_field.data)
+        number = str(form.phone_number.data)
+        password = str(form.password_field.data)
+        if password == get_verify_name(2, 4, 2):
+            voice_add_util(title, message, url)
+            client = TwilioRestClient(twilio_account_sid, twilio_auth_token)
+            routex = "http://hello-frrriend.herokuapp.com/voice/" + str(title)
+            call = client.calls.create(url=routex, to=number, from_="+13609001701")
+            flash("Rung " + number + ".")
+        else:
+            flash("Invalid secret code, admins are not pleased.")
+        return render_template('voice.html', form=form, number=number, message=message, url=url, title=title, showdetails=False)
+    return render_template('voice.html', form=form, showdetails=True)
+
+@app.route('/voice/list', methods=['GET'])
+def voice_list():
+    return dataFormatter(200, "Listing data", data)
+
+@app.route('/voice/add', methods=['POST'])
+def voice_add():
+    d = {}
+    title = request.values.get('title')
+    if title is None:
+        return dataFormatter(404, "Bad request, need title.", [])
+    d['title'] = title
+    message = request.values.get('message')
+    if message is not None:
+        d['message'] = message
+    url = request.values.get('url')
+    if url is not None:
+        d['url'] = url
+    p = None
+    for x in data:
+        if x['title'] == title:
+            p = x
+    if p is not None:
+        data.remove(p)
+        data.append(d)
+        return dataFormatter(201, "Updated", data)
+    data.append(d)
+    saveFile()
+    return dataFormatter(201, "Appended", data)
+
+def voice_add_util(title, message, url):
+    d = {}
+    d['title'] = title
+    if len(message) > 0:
+        d['message'] = message
+    if len(url) > 0:
+        d['url'] = url
+    p = None
+    for x in data:
+        if x['title'] == title:
+            p = x
+    if p is not None:
+        data.remove(p)
+        data.append(d)
+    data.append(d)
+    saveFile()
+
+
+@app.route('/voice/<title>', methods=['POST', 'GET'])
+def voice_title(title):
+    d = None
+    for x in data:
+        if x['title'] == title:
+            d = x
+            break
     resp = twilio.twiml.Response()
-    resp.play("http://hello-frrriend.herokuapp.com/static/srp.mp3")
+    print(d)
+    if d is None:
+        resp.say("Don't talk please")
+    else:
+        try:
+            message = d['message']
+            resp.say(d['message'], voice='Alice', language='en-IN')
+        except:
+            print("No message ofr the ")
+        try:
+            url = d['url']
+            resp.play(d['url'])
+        except:
+            print("No url in the query")
     return str(resp)
 
 if __name__ == "__main__":
