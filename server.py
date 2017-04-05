@@ -554,6 +554,7 @@ def voice_add():
     if p is not None:
         data.remove(p)
         data.append(d)
+        saveFile()
         return dataFormatter(201, "Updated", data)
     data.append(d)
     saveFile()
@@ -573,6 +574,8 @@ def voice_add_util(title, message, url):
     if p is not None:
         data.remove(p)
         data.append(d)
+        saveFile()
+        return;
     data.append(d)
     saveFile()
 
