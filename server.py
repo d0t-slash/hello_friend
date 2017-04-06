@@ -506,8 +506,6 @@ except:
 class VoiceForm(Form):
     phone_number = StringField('phone_number', validators=[DataRequired()])
     title_field = StringField('title_field', validators=[DataRequired()])
-    message_field = StringField('message_field')
-    url_field = StringField('url_field')
     password_field = PasswordField('password_field', validators=[DataRequired()])
 
 @app.route("/voice/", methods=['GET', 'POST'])
@@ -515,20 +513,17 @@ def voice_page():
     form = VoiceForm()
     if form.validate_on_submit():
         title = str(form.title_field.data)
-        message = str(form.message_field.data)
-        url = str(form.url_field.data)
         number = str(form.phone_number.data)
         password = str(form.password_field.data)
         if password == get_verify_name(2, 4, 2):
-            voice_add_util(title, message, url)
             client = TwilioRestClient(twilio_account_sid, twilio_auth_token)
             routex = "http://hello-frrriend.herokuapp.com/voice/" + str(title)
             call = client.calls.create(url=routex, to=number, from_="+13609001701")
             flash("Rung " + number + ".")
         else:
             flash("Invalid secret code, admins are not pleased.")
-        return render_template('voice.html', form=form, number=number, message=message, url=url, title=title, showdetails=False)
-    return render_template('voice.html', form=form, showdetails=True)
+        return render_template('voice.html', form=form, number=number, title=title, showdetails=False, data=data)
+    return render_template('voice.html', form=form, showdetails=True, data=data)
 
 @app.route('/voice/list', methods=['GET'])
 def voice_list():

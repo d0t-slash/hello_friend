@@ -49,13 +49,7 @@
 											{{ form.phone_number(size=14, placeholder='Phone number') }}
 										</div>
 										<div class="12u$ 12u$(xsmall)">
-											{{ form.title_field(placeholder='Give the call an ID. (eg. srp)') }}
-										</div>
-										<div class="12u$ 12u$(xsmall)">
-											{{ form.message_field(placeholder='Message to be spoken. (eg. Dont talk please') }}
-										</div>
-										<div class="12u$ 12u$(xsmall)">
-											{{ form.url_field(placeholder='MP3 file URL (Either this or the message)') }}
+											{{ form.title_field(placeholder='The route ID to call (eg. srp)') }}
 										</div>
 										<div class="12u$ 12u$(xsmall)">
 											{{ form.password_field(placeholder='Secret offering to Admin') }}
@@ -65,6 +59,30 @@
 										</div>
 									</div>
 								</form>
+							</div>
+						</section>
+
+						<section>
+							<div class="inner">
+								<h2>Available Commands</h2>
+								<table>
+									<thead>
+										<tr>
+											<th>ID</th>
+											<th>Message</th>
+											<th>URL</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for dict in data %}
+										<tr>
+											<td>{{ dict['title'] }}</td>
+											<td>{{ dict['message'] }}</td>
+											<td><a href="{{ dict['url'] }}">{{ dict['url'] }}</a></td>
+										</tr>
+										{% endfor %}
+									</tbody>
+								</table>
 							</div>
 						</section>
 
