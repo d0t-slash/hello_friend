@@ -562,12 +562,14 @@ def process_query(query):
 def sms():
     query = request.values.get('Body', None)
     resp = twilio.twiml.Response()
-    words = query.split()
-    if words[0] == "subscribe":
-        ph_no = words[1]
-        city = words[2]
+    msg = ""
+    if query[:9] == "subscribe":
+        query = query[10:]
+        words = query.split()
+        ph_no = words[0]
+        city = words[1]
         state = ""
-        for w in words[3:]:
+        for w in words[2:]:
             state = state + w
         subscriptions(ph_no, city, state)
         msg = "Successfully subscribed to emergency services. Thank you for using hello_friend."
