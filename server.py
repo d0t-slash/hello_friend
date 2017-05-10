@@ -476,6 +476,21 @@ def define(dict_response):
         message = technical_issues()
     return message
 
+@app.route("/addx/<ph_no>/<city>/<state>")
+def subscriptions_xx(ph_no, city, state):
+    conn = mysql.connect()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO subscribers (%s, %s, %s)", (ph_no, city, state))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return dataFormatter(201, "Added", [])
+    except:
+        cursor.close()
+        conn.close()
+        return dataFormatter(401, "Nope", [])
+
 def subscriptions(ph_no, city, state):
     conn = mysql.connect()
     try:
@@ -554,7 +569,9 @@ def sms():
         city = words[1]
         state = words[2]
         subscriptions(ph_no, city, state)
-    msg = process_query(message_body)
+        msg = "Successfully subscribed to emergency services. Thank you for using hello_friend."
+    else:
+        msg = process_query(message_body)
     if test_mode:
         send_sms_to_admin(msg)
     resp.message(msg)
