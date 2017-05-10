@@ -1,4 +1,4 @@
-#!/usr/bin/python
+1#!/usr/bin/python
 
 from flask import Flask, request, flash, redirect, render_template, jsonify
 from flaskext.mysql import MySQL
@@ -481,7 +481,7 @@ def subscriptions_xx(ph_no, city, state):
     conn = mysql.connect()
     try:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO subscribers (%s, %s, %s)", (ph_no, city, state))
+        cursor.execute("INSERT INTO subscribers VALUES (%s, %s, %s)", (ph_no, city, state))
         conn.commit()
         cursor.close()
         conn.close()
@@ -495,7 +495,7 @@ def subscriptions(ph_no, city, state):
     conn = mysql.connect()
     try:
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO subscribers (%s, %s, %s)", (ph_no, city, state))
+        cursor.execute("INSERT INTO subscribers VALUES (%s, %s, %s)", (ph_no, city, state))
         conn.commit()
         cursor.close()
         conn.close()
@@ -560,7 +560,7 @@ def process_query(query):
 
 @app.route("/sms", methods=['POST'])
 def sms():
-    message_body = request.values.get('Body', None)
+    query = request.values.get('Body', None)
     resp = twilio.twiml.Response()
     if query.startswith("subscribe"):
         query = query[9:]
@@ -571,7 +571,7 @@ def sms():
         subscriptions(ph_no, city, state)
         msg = "Successfully subscribed to emergency services. Thank you for using hello_friend."
     else:
-        msg = process_query(message_body)
+        msg = process_query(query)
     if test_mode:
         send_sms_to_admin(msg)
     resp.message(msg)
