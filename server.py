@@ -52,10 +52,10 @@ app.config.from_object('config')
 
 mysql = MySQL()
 
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'password'
-app.config['MYSQL_DATABASE_DB'] = 'hellohello'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_USER'] = 'b4dea37336a229'
+app.config['MYSQL_DATABASE_PASSWORD'] = '423dbfab'
+app.config['MYSQL_DATABASE_DB'] = 'heroku_d5dd20eac082bba'
+app.config['MYSQL_DATABASE_HOST'] = 'us-cdbr-iron-east-03.cleardb.net'
 mysql.init_app(app)
 
 # Main route
@@ -110,6 +110,21 @@ def emergency_page():
             conn.close()
         return render_template('emergency.html', form=form, showdetails=False)
     return render_template('emergency.html', form=form, showdetails=True)
+
+@app.route("/emergency_list/", methods=['GET'])
+def emergency_list():
+    conn = mysql.connect()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM subscribers")
+        values = cursor.fetchall()
+        data = []
+        for value in values:
+            d = [value[0], value[1], value[2]]
+            data.append(d)
+        return dataFormatter(200, "LEL", data)
+    except:
+        return dataFormatter(400, "LEL", [])
 
 # Test routes
 
