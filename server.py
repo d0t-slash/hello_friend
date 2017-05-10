@@ -435,6 +435,8 @@ def process_query(query):
         return msg
     dict_response = json.loads(response.text)
 
+    print(dict_response);
+
     intent = None
     confidence = None
     entities = None
