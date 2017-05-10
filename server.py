@@ -1,4 +1,4 @@
-1#!/usr/bin/python
+#!/usr/bin/python
 
 from flask import Flask, request, flash, redirect, render_template, jsonify
 from flaskext.mysql import MySQL
@@ -97,7 +97,7 @@ def emergency_page():
         conn = mysql.connect()
         try:
             cursor = conn.cursor()
-            cursor.execute("SELECT ph_no FROM subscribers WHERE ph_no = %s", (state))
+            cursor.execute("SELECT ph_no FROM subscribers WHERE state = %s", (state))
             data = cursor.fetchall()
             for value in data:
                 phone_no = value[0]
