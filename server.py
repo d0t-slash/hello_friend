@@ -562,8 +562,8 @@ def process_query(query):
 def sms():
     query = request.values.get('Body', None)
     resp = twilio.twiml.Response()
-    if query.startswith("subscribe"):
-        query = query[9:]
+    if query.find("subscribe") == 0:
+        query = query[10:]
         words = query.split()
         ph_no = words[0]
         city = words[1]
