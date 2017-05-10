@@ -567,7 +567,9 @@ def sms():
         words = query.split()
         ph_no = words[0]
         city = words[1]
-        state = words[2:]
+        state = ""
+        for w in words[2:]:
+            state = state + w
         subscriptions(ph_no, city, state)
         msg = "Successfully subscribed to emergency services. Thank you for using hello_friend."
     else:
