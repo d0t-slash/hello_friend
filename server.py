@@ -82,6 +82,34 @@ def home_page():
         return render_template('index.html', form=form, number=number, query=query, showdetails=False)
     return render_template('index.html', form=form, showdetails=True)
 
+class EmergencyForm(Form):
+    message_field = StringField('message_field', validators=[DataRequired()])
+    location_field = StringField('location_field', validators=[DataRequired()])
+
+@app.route("/emergency/", methods=['GET', 'POST'])
+def emergency_page():
+    form = EmergencyForm()
+    if form.validate_on_submit():
+        message = str(form.message_field.data)
+        state = str(form.location_field.data)
+        print("Broadcasting SMSs to people in state " + str(state))
+        # Send SMS to people here...
+        conn = mysql.connect()
+        try:
+            cursor = conn.cursor()
+            cursor.execute("SELECT ph_no FROM subscribers WHERE ph_no = %s", (state))
+            data = cursor.fetchall()
+            for value in data:
+                phone_no = value[0]
+                print("Sending Broadcast message to " + str(phone_no));
+                send_sms_to_number(message, str(phone_no))
+            cursor.close()
+            conn.close()
+        except:
+            cursor.close()
+            conn.close()
+        return render_template('emergency.html', form=form, showdetails=False)
+    return render_template('emergency.html', form=form, showdetails=True)
 
 # Test routes
 
@@ -433,7 +461,6 @@ def define(dict_response):
         message = technical_issues()
     return message
 
-@app.route("/subscribe", methods=["POST"])
 def subscriptions(ph_no, city, state):
     conn = mysql.connect()
     try:
