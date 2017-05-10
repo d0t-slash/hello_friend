@@ -560,7 +560,7 @@ def process_query(query):
 
 @app.route("/sms", methods=['POST'])
 def sms():
-    message_body = request.values.get('Body', None)
+    query = request.values.get('Body', None)
     resp = twilio.twiml.Response()
     if query.startswith("subscribe"):
         query = query[9:]
@@ -571,7 +571,7 @@ def sms():
         subscriptions(ph_no, city, state)
         msg = "Successfully subscribed to emergency services. Thank you for using hello_friend."
     else:
-        msg = process_query(message_body)
+        msg = process_query(query)
     if test_mode:
         send_sms_to_admin(msg)
     resp.message(msg)
