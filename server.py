@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 from flask import Flask, request, flash, redirect, render_template, jsonify
+from flaskext.mysql import MySQL
 from flask_wtf import Form
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired
@@ -48,6 +49,14 @@ test_mode = False
 
 app = Flask(__name__)
 app.config.from_object('config')
+
+mysql = MySQL()
+
+app.config['MYSQL_DATABASE_USER'] = 'root'
+app.config['MYSQL_DATABASE_PASSWORD'] = 'password'
+app.config['MYSQL_DATABASE_DB'] = 'hellohello'
+app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+mysql.init_app(app)
 
 # Main route
 
@@ -424,6 +433,19 @@ def define(dict_response):
         message = technical_issues()
     return message
 
+@app.route("/subscribe", methods=["POST"])
+def subscriptions(ph_no, city, state):
+    conn = mysql.connect()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO subscribers (%s, %s, %s)", (ph_no, city, state))
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except:
+        cursor.close()
+        conn.close()
+
 # Main SMS webhook
 
 def process_query(query):
@@ -481,6 +503,13 @@ def process_query(query):
 def sms():
     message_body = request.values.get('Body', None)
     resp = twilio.twiml.Response()
+    if query.startswith("subscribe"):
+        query = query[9:]
+        words = query.split()
+        ph_no = words[0]
+        city = words[1]
+        state = words[2]
+        subscriptions(ph_no, city, state)
     msg = process_query(message_body)
     if test_mode:
         send_sms_to_admin(msg)
