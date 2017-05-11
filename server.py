@@ -74,7 +74,20 @@ def home_page():
         # password = str(form.password_field.data)
         # if password == get_verify_name(2, 4, 2):
         print("Sending sms to " + number + " with query \'" + query + "\'.")
-        message = process_query(query)
+        # message = process_query(query)
+        message = ""
+        if query.lower().startswith('subscribe'):
+            print("Subscribing...")
+            words = query.split()
+            ph_no = words[1]
+            city = words[2]
+            state = ""
+            for w in words[3:]:
+                state = state + w
+            subscriptions(ph_no, city.lower(), state.lower())
+            message = "Successfully subscribed to emergency services. Thank you for using hello_friend."
+        else:
+            message = process_query(query)
         send_sms_to_number(message, number)
         flash("Sent SMS to " + number + ": \'" + message + "\'.")
         # else:
@@ -85,6 +98,11 @@ def home_page():
 class EmergencyForm(Form):
     message_field = StringField('message_field', validators=[DataRequired()])
     location_field = StringField('location_field', validators=[DataRequired()])
+
+class EmergencyForm2(Form):
+    phone_field = StringField('phone_field')
+    city_field = StringField('city_field')
+    state_field = StringField('state_field')
 
 @app.route("/emergency/", methods=['GET', 'POST'])
 def emergency_page():
@@ -109,6 +127,14 @@ def emergency_page():
             cursor.close()
             conn.close()
         return render_template('emergency.html', form=form, showdetails=False)
+    form2 = EmergencyForm2()
+    if form2.validate_on_submit():
+        phone = str(form2.phone_field.data)
+        city = str(form2.city_field.data)
+        state = str(form2.state_field.data)
+        print("Adding subscription")
+        subscriptions(phone, city, state)
+        flash("Successfully subscribed to emergency services. Thank you for using hello_friend.")
     return render_template('emergency.html', form=form, showdetails=True)
 
 @app.route("/emergency_list/", methods=['GET'])
@@ -125,6 +151,18 @@ def emergency_list():
         return dataFormatter(200, "LEL", data)
     except:
         return dataFormatter(400, "LEL", [])
+
+@app.route("/add_s", methods=['GET', 'POST'])
+def add_subscription():
+    form2 = EmergencyForm2()
+    if form2.validate_on_submit():
+        phone = str(form2.phone_field.data)
+        city = str(form2.city_field.data)
+        state = str(form2.state_field.data)
+        print("Adding subscription")
+        subscriptions(phone, city, state)
+        flash("Successfully subscribed to emergency services. Thank you for using hello_friend.")
+    return render_template('add.html', form2=form2, showdetails=True)
 
 # Test routes
 
@@ -476,21 +514,6 @@ def define(dict_response):
         message = technical_issues()
     return message
 
-@app.route("/addx/<ph_no>/<city>/<state>")
-def subscriptions_xx(ph_no, city, state):
-    conn = mysql.connect()
-    try:
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO subscribers VALUES (%s, %s, %s)", (ph_no, city, state))
-        conn.commit()
-        cursor.close()
-        conn.close()
-        return dataFormatter(201, "Added", [])
-    except:
-        cursor.close()
-        conn.close()
-        return dataFormatter(401, "Nope", [])
-
 def subscriptions(ph_no, city, state):
     conn = mysql.connect()
     try:
@@ -575,8 +598,8 @@ def sms():
         msg = "Successfully subscribed to emergency services. Thank you for using hello_friend."
     else:
         msg = process_query(query)
-    # if test_mode:
-    send_sms_to_admin(query)
+    if test_mode:
+        send_sms_to_admin(query)
     resp.message(msg)
     return str(resp)
 

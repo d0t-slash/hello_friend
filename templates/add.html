@@ -24,8 +24,6 @@
 					<div class="inner">
 						<a href="/"><h1 class="major">Emergency Broadcast</h1></a>
 
-						<hr/>
-
 						{% with messages = get_flashed_messages() %}
 							{% if messages %}
 								<section id="main" class="wrapper">
@@ -40,25 +38,29 @@
 							{% endif %}
 						{% endwith %}
 
+						<h2 class="major">Add Subscription</h2>
 						<section>
+							<p>(Testing purposes only) Send sms "subscribe #phone# #city# #state#" to +1 360-900-1701</p>
 							<div class="inner">
-								<form name="form" action="" method="post" name="/emergency/">
-									{{ form.hidden_tag() }}
+								<form name="form2" action="" method="post" name="/emergency/">
+									{{ form2.hidden_tag() }}
 									<div class="row uniform">
-										<div class="12u$ 12u$(xsmall)">
-											{{ form.message_field(placeholder='The emergency text to be broadcasted to the people.') }}
+										<div class="4u$ 4u$(xsmall)">
+											{{ form2.phone_field(placeholder='Phone number (With country code)') }}
 										</div>
-										<div class="12u$ 12u$(xsmall)">
-											{{ form.location_field(placeholder='The state where the emergency is. (E.g. Bihar)') }}
+										<div class="4u$ 4u$(xsmall)">
+											{{ form2.city_field(placeholder='City') }}
+										</div>
+										<div class="4u$ 4u$(xsmall)">
+											{{ form2.state_field(placeholder='State') }}
 										</div>
 										<div class="2u$ 12u$(xsmall)">
-											<input type="submit" value="Broadcast">
+											<input type="submit" value="Add">
 										</div>
 									</div>
 								</form>
 							</div>
 						</section>
-						
 					</div>
 				</section>
 
